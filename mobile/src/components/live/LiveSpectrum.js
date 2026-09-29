@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+﻿import React, { useState, useCallback } from 'react';
 import { View, StyleSheet } from 'react-native';
 import Svg, { Path, Line, Text as SvgText } from 'react-native-svg';
 import { useScale } from '../../theme/scale';
@@ -18,7 +18,6 @@ export default function LiveSpectrum({ spec, max, peakHz, peakIdx }) {
 
   const { width: w, height: h } = layout;
 
-  // Plot area boundaries as fractions
   const xLeft = 0.0294 * w;
   const xRight = 0.9706 * w;
   const yTop = 0.0667 * h;
@@ -26,7 +25,6 @@ export default function LiveSpectrum({ spec, max, peakHz, peakIdx }) {
   const plotW = xRight - xLeft;
   const plotH = yBase - yTop;
 
-  // Build filled path
   let pathD = '';
   if (spec && spec.length > 0) {
     const safeMax = (max || 1) * 1.1;
@@ -44,18 +42,15 @@ export default function LiveSpectrum({ spec, max, peakHz, peakIdx }) {
     pathD += ` L ${points[points.length - 1].x.toFixed(1)} ${yBase.toFixed(1)} Z`;
   }
 
-  // Peak line x position
   const peakX = peakHz != null
     ? xLeft + ((peakHz - 1.5) / 20) * plotW
     : null;
 
-  // Peak label positioning
   const peakLabelX = peakX && peakX > 0.735 * w
     ? peakX - mu(4)
     : peakX ? peakX + mu(4) : 0;
   const peakLabelAnchor = peakX && peakX > 0.735 * w ? 'end' : 'start';
 
-  // Tick positions
   const ticks = [
     { label: '2', x: xLeft + (0.5 / 20) * plotW, anchor: 'start' },
     { label: '5', x: xLeft + (3.5 / 20) * plotW, anchor: 'middle' },

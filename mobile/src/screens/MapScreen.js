@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 import { View, StyleSheet } from 'react-native';
 import { useStore } from '../state/store';
 import LeafletMap from '../components/map/LeafletMap';
@@ -30,6 +30,5 @@ const styles = StyleSheet.create({
   },
   mapArea: {
     flex: 1,
-    // The map now takes the full screen behind the sheet
   },
 });

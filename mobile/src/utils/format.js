@@ -1,5 +1,4 @@
-// Distance, time, and number formatting utilities
-
+﻿
 /**
  * Format a distance in meters for display (straight-line).
  * Under 1000 m: "420 m away" (rounded to nearest 10).

@@ -1,60 +1,42 @@
-// Signal processing utilities - Enhanced with research-backed noise removal
-// Techniques: Bandpass filter, Welch's PSD, Spectral subtraction
-// References: Yang et al. 2004, Matarazzo & Pakzad 2018, O'Brien et al. 2014
+﻿export const FS = 60;
+export const WIN = 256;
+export const F0 = 3.1;
+export const F_LOW = 1.5;
+export const F_HIGH = 20;
+export const CALIBRATION_MS = 5000;
 
-export const FS = 60;             // Sample rate ~60 Hz
-export const WIN = 256;           // Window size (power of 2)
-export const F0 = 3.1;            // Default bridge frequency reference
-export const F_LOW = 1.5;         // Bandpass low cutoff (removes car body sway)
-export const F_HIGH = 20;         // Bandpass high cutoff (removes engine noise)
-export const CALIBRATION_MS = 5000; // 5 seconds pre-bridge noise calibration
-
-// Frequency bins: 1.5 to 21.5 Hz in 0.25 Hz steps (80 bins)
 export const BINS = Array.from({ length: 80 }, (_, i) => +(1.5 + i * 0.25).toFixed(2));
 
-// ─── Bandpass Filter (cascaded biquad IIR) ───────────────────────────────
-// Removes: car body sway (<1.5 Hz), engine/tire noise (>20 Hz)
-// Butterworth-style single-pole high-pass + low-pass, cascaded x2 for steeper rolloff.
-
 export function createBandpassFilter(fs = FS, fLow = F_LOW, fHigh = F_HIGH) {
-  // High-pass coefficient (RC filter)
   const dtHP = 1 / fs;
   const rcHP = 1 / (2 * Math.PI * fLow);
   const alphaHP = rcHP / (rcHP + dtHP);
 
-  // Low-pass coefficient (RC filter)
   const dtLP = 1 / fs;
   const rcLP = 1 / (2 * Math.PI * fHigh);
   const alphaLP = dtLP / (rcLP + dtLP);
 
-  // State for 2-stage cascade (steeper rolloff)
   let hp1_prev_x = 0, hp1_prev_y = 0;
   let hp2_prev_x = 0, hp2_prev_y = 0;
   let lp1_prev_y = 0;
   let lp2_prev_y = 0;
 
   return function filter(x) {
-    // High-pass stage 1
     const hp1 = alphaHP * (hp1_prev_y + x - hp1_prev_x);
     hp1_prev_x = x;
     hp1_prev_y = hp1;
 
-    // High-pass stage 2
     const hp2 = alphaHP * (hp2_prev_y + hp1 - hp2_prev_x);
     hp2_prev_x = hp1;
     hp2_prev_y = hp2;
 
-    // Low-pass stage 1
     lp1_prev_y += alphaLP * (hp2 - lp1_prev_y);
-
-    // Low-pass stage 2
     lp2_prev_y += alphaLP * (lp1_prev_y - lp2_prev_y);
 
     return lp2_prev_y;
   };
 }
 
-// ─── Hann Window ─────────────────────────────────────────────────────────
 function hannWindow(N) {
   const w = new Float64Array(N);
   for (let i = 0; i < N; i++) {
@@ -63,7 +45,6 @@ function hannWindow(N) {
   return w;
 }
 
-// ─── Goertzel DFT for specific frequency bins ───────────────────────────
 function goertzelPower(buf, freq, fs) {
   const N = buf.length;
   const k = Math.round(freq * N / fs);
@@ -78,26 +59,19 @@ function goertzelPower(buf, freq, fs) {
   return (s1 * s1 + s2 * s2 - coeff * s1 * s2) / (N * N);
 }
 
-// ─── Live Spectrum (real-time display, smoothed Goertzel) ────────────────
-// Used during recording for the live spectrum visualization.
-// Fast, single-window, exponentially smoothed.
-
 export function computeSpectrum(buf, prev) {
   const N = buf.length;
   if (N < 32) return { spec: prev, max: 0, peakHz: 0, peakIdx: 0, quality: 20 };
 
-  // Remove DC offset
   let mean = 0;
   for (const v of buf) mean += v;
   mean /= N;
 
-  // Apply Hann window
   const x = new Float64Array(N);
   for (let i = 0; i < N; i++) {
     x[i] = (buf[i] - mean) * (0.5 - 0.5 * Math.cos(2 * Math.PI * i / (N - 1)));
   }
 
-  // Goertzel at each frequency bin with exponential smoothing
   const spec = BINS.map((f, j) => {
     const om = 2 * Math.PI * f / FS;
     let re = 0, im = 0;
@@ -109,11 +83,9 @@ export function computeSpectrum(buf, prev) {
     return (prev[j] ?? 0) * 0.8 + power * 0.2;
   });
 
-  // Find peak
   let max = 0, pi = 0;
   spec.forEach((v, j) => { if (v > max) { max = v; pi = j; } });
 
-  // Quality: SNR in dB (peak vs median)
   const sorted = [...spec].sort((a, b) => a - b);
   const med = sorted[Math.floor(sorted.length / 2)] || 1;
   const quality = Math.max(20, Math.min(96, Math.round(30 + 20 * Math.log2(Math.max(1, max / med)))));
@@ -121,34 +93,23 @@ export function computeSpectrum(buf, prev) {
   return { spec, max, peakHz: BINS[pi], peakIdx: pi, quality };
 }
 
-// ─── Welch's PSD (final analysis, high accuracy) ────────────────────────
-// Used at end of trip for the uploaded result.
-// Averages multiple overlapping windowed periodograms → much lower noise floor.
-// Reference: Welch, 1967. "The use of FFT for estimation of power spectra"
-
 export function welchPSD(samples, fs = FS, segLen = 256, overlap = 0.5) {
   const N = samples.length;
-  if (N < segLen) {
-    // Fall back to single-window if not enough data
-    return computeSpectrum(samples, []);
-  }
+  if (N < segLen) return computeSpectrum(samples, []);
 
   const step = Math.floor(segLen * (1 - overlap));
   const numSegments = Math.floor((N - segLen) / step) + 1;
   const window = hannWindow(segLen);
 
-  // Accumulate power across segments
   const avgSpec = new Float64Array(BINS.length);
 
   for (let seg = 0; seg < numSegments; seg++) {
     const offset = seg * step;
 
-    // Remove segment mean
     let mean = 0;
     for (let i = 0; i < segLen; i++) mean += samples[offset + i];
     mean /= segLen;
 
-    // Apply window and compute Goertzel for each bin
     const windowed = new Float64Array(segLen);
     for (let i = 0; i < segLen; i++) {
       windowed[i] = (samples[offset + i] - mean) * window[i];
@@ -166,7 +127,6 @@ export function welchPSD(samples, fs = FS, segLen = 256, overlap = 0.5) {
     }
   }
 
-  // Find peak
   let max = 0, pi = 0;
   const spec = Array.from(avgSpec);
   spec.forEach((v, j) => { if (v > max) { max = v; pi = j; } });
@@ -178,20 +138,14 @@ export function welchPSD(samples, fs = FS, segLen = 256, overlap = 0.5) {
   return { spec, max, peakHz: BINS[pi], peakIdx: pi, quality, numSegments };
 }
 
-// ─── Spectral Subtraction ────────────────────────────────────────────────
-// Subtracts the noise baseline (pre-bridge road) from the bridge spectrum.
-// Reference: Yang et al. 2004, O'Brien et al. 2014
-// What remains after subtraction = bridge-only contribution.
-
 export function spectralSubtract(bridgeSpec, noiseSpec, alpha = 1.0) {
   if (!noiseSpec || noiseSpec.length === 0) return bridgeSpec;
 
   const result = bridgeSpec.spec.map((v, j) => {
     const noise = (noiseSpec[j] || 0) * alpha;
-    return Math.max(0, v - noise); // Floor at 0 (no negative power)
+    return Math.max(0, v - noise);
   });
 
-  // Re-find peak in subtracted spectrum
   let max = 0, pi = 0;
   result.forEach((v, j) => { if (v > max) { max = v; pi = j; } });
 
@@ -202,18 +156,11 @@ export function spectralSubtract(bridgeSpec, noiseSpec, alpha = 1.0) {
   return { spec: result, max, peakHz: BINS[pi], peakIdx: pi, quality };
 }
 
-// ─── Gyroscope Confidence Weight ─────────────────────────────────────────
-// Bridge vibration = translational (low angular velocity).
-// Car bounce = rotational (high angular velocity).
-// Weight samples inversely to rotational energy.
-
 export function gyroConfidence(rotationRate) {
   if (!rotationRate) return 1;
   const { alpha, beta, gamma } = rotationRate;
   const angularMag = Math.sqrt(
     (alpha || 0) ** 2 + (beta || 0) ** 2 + (gamma || 0) ** 2
   );
-  // Deg/s → confidence: low rotation = high confidence
-  // At 0 deg/s → weight 1.0, at 50 deg/s → weight ~0.3
   return 1 / (1 + angularMag / 30);
 }

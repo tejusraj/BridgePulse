@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useCallback } from 'react';
+﻿import React, { useEffect, useRef, useCallback } from 'react';
 import { View, StyleSheet, TouchableWithoutFeedback } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { CircleCheck, Lock } from 'lucide-react-native';
@@ -23,19 +23,16 @@ export default function SummaryScreen() {
   const autoReturnTimer = useRef(null);
   const touched = useRef(false);
 
-  // Success haptic on entry
   useEffect(() => {
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
   }, []);
 
-  // Upload trip to Supabase
   useEffect(() => {
     if (lastTrip && bridge) {
       uploadTrip(lastTrip, bridge).catch(() => {});
     }
   }, []);
 
-  // Auto-return after 8 seconds unless user touches the screen
   useEffect(() => {
     autoReturnTimer.current = setTimeout(() => {
       if (!touched.current) {
@@ -81,7 +78,7 @@ export default function SummaryScreen() {
           </View>
           <Text variant="title">Trip sent</Text>
           <Text variant="bodyS" style={styles.subtitle}>
-            {bridge?.name || 'Bridge'} · {durationS} s trip
+            {bridge?.name || 'Bridge'} Â· {durationS} s trip
           </Text>
         </View>
 

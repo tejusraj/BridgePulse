@@ -1,6 +1,4 @@
-// Scale helper — converts mockup units (mu) to device pixels
-// The mockup phone is 300 mu wide. This scales everything proportionally.
-
+﻿
 import { useWindowDimensions, PixelRatio } from 'react-native';
 
 export const BASE_W = 300;

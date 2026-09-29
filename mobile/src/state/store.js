@@ -1,16 +1,14 @@
-import { create } from 'zustand';
+﻿import { create } from 'zustand';
 
 export const useStore = create((set, get) => ({
   screen: 'map',
   gps: 'acquiring',
   sensor: 'ready',
   
-  // Real bridge data state
   bridges: [],
   selectedBridge: null,
   bridgesLoading: false,
   
-  // Settings
   autoStartRadiusM: 50, // default 50 meters
   
   userLocation: null, // { latitude, longitude }

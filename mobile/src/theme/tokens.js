@@ -1,6 +1,4 @@
-// Design tokens — dark theme only
-// Every color in the app comes from here. No ad-hoc hex values elsewhere.
-
+﻿
 export const colors = {
   bg:            '#0B0E13',
   surface:       '#12171E',
@@ -26,7 +24,7 @@ export const colors = {
 };
 
 export const radii = {
-  card: 8,    // in mu — will be scaled
+  card: 8,    // in mu â€” will be scaled
   pill: 999,
   button: 8,  // in mu
 };

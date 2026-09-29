@@ -1,4 +1,4 @@
-import React, { useRef, useMemo, useState } from 'react';
+﻿import React, { useRef, useMemo, useState } from 'react';
 import { View, StyleSheet, ScrollView, Animated, PanResponder, useWindowDimensions, Pressable } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ChevronUp, ChevronDown } from 'lucide-react-native';

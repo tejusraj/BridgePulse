@@ -1,4 +1,4 @@
-import { getDistance } from '../utils/distance';
+﻿import { getDistance } from '../utils/distance';
 
 const CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes
 
@@ -17,7 +17,6 @@ let lastLng = null;
 export async function fetchNearbyBridges(lat, lng, radiusM = 5000) {
   const now = Date.now();
   
-  // Return cached data if within TTL and location hasn't changed significantly (e.g., > 1km)
   if (
     cachedBridges &&
     now - cacheTimestamp < CACHE_TTL_MS &&
@@ -26,7 +25,6 @@ export async function fetchNearbyBridges(lat, lng, radiusM = 5000) {
   ) {
     const distFromLastFetch = getDistance(lat, lng, lastLat, lastLng);
     if (distFromLastFetch < 1000) {
-       // Update distances relative to current location
        const sorted = cachedBridges.map(b => ({
            ...b,
            distanceM: getDistance(lat, lng, b.lat, b.lng)
@@ -51,11 +49,9 @@ export async function fetchNearbyBridges(lat, lng, radiusM = 5000) {
 
     const data = await response.json();
     
-    // Parse response
     const bridges = data.elements
       .filter(el => el.type === 'way' && el.center)
       .map(el => {
-        // Fallback names if 'name' tag is missing
         let name = el.tags?.name;
         if (!name) {
             name = el.tags?.ref ? `Bridge (${el.tags.ref})` : `Unnamed Bridge (${el.id})`;
@@ -66,14 +62,11 @@ export async function fetchNearbyBridges(lat, lng, radiusM = 5000) {
           name: name,
           lat: el.center.lat,
           lng: el.center.lon,
-          // Generate a pseudo-random baseline frequency for demo purposes based on ID
           baselineHz: 2.0 + (el.id % 50) / 10,
           
         };
       });
 
-    // Remove duplicates (sometimes Overpass returns multiple segments for one bridge)
-    // A simple heuristic: if they are very close (< 50m) and have the same name, merge them.
     const uniqueBridges = [];
     for (const b of bridges) {
         const isDuplicate = uniqueBridges.some(ub => ub.name === b.name && getDistance(b.lat, b.lng, ub.lat, ub.lng) < 50);
@@ -82,13 +75,11 @@ export async function fetchNearbyBridges(lat, lng, radiusM = 5000) {
         }
     }
 
-    // Calculate distance from current position and sort
     const sortedBridges = uniqueBridges.map(b => ({
         ...b,
         distanceM: getDistance(lat, lng, b.lat, b.lng)
     })).sort((a, b) => a.distanceM - b.distanceM);
 
-    // Cache the result
     cachedBridges = sortedBridges;
     cacheTimestamp = now;
     lastLat = lat;
@@ -101,7 +92,6 @@ export async function fetchNearbyBridges(lat, lng, radiusM = 5000) {
   }
 }
 
-// Fallback bridge data if Overpass API fails or user is offline.
 export const FALLBACK_BRIDGES = [
   { id: 'fb-1', name: 'Habibganj Overbridge', lat: 23.23, lng: 77.43, baselineHz: 3.1 },
   { id: 'fb-2', name: 'Chetak Bridge', lat: 23.24, lng: 77.44, baselineHz: 2.8 },

@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 import { View, StyleSheet } from 'react-native';
 import { useScale } from '../../theme/scale';
 import { colors, radii, borderWidths } from '../../theme/tokens';

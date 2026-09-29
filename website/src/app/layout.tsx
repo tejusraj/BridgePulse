@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+﻿import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "BridgePulse — Structural Health Dashboard",
+  title: "BridgePulse â€” Structural Health Dashboard",
   description:
     "Real-time bridge structural health monitoring dashboard. Crowd-sourced vibration analysis for infrastructure safety.",
 };

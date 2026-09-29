@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+﻿import React, { useEffect, useRef } from 'react';
 import { View, Animated, StyleSheet, AccessibilityInfo } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useScale } from '../../theme/scale';
@@ -55,7 +55,7 @@ export default function RecordingChip() {
             ]}
           />
         </View>
-        <Chip label="On bridge · recording" />
+        <Chip label="On bridge Â· recording" />
       </View>
     </View>
   );

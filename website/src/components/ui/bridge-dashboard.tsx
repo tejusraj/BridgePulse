@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -377,7 +377,7 @@ function DataTable({
                       {bridge.baseline_hz.toFixed(2)}
                     </td>
                     <td className="hidden px-3 py-3 text-right text-sm tabular-nums sm:px-4 sm:text-base md:table-cell">
-                      {bridge.current_hz != null ? bridge.current_hz.toFixed(2) : "—"}
+                      {bridge.current_hz != null ? bridge.current_hz.toFixed(2) : "â€”"}
                     </td>
                     <td className="hidden px-3 py-3 text-right sm:px-4 md:table-cell">
                       {freqShift != null ? (
@@ -400,7 +400,7 @@ function DataTable({
                           </span>
                         </div>
                       ) : (
-                        <span className="text-sm text-muted-foreground">—</span>
+                        <span className="text-sm text-muted-foreground">â€”</span>
                       )}
                     </td>
                     <td className="hidden px-3 py-3 text-right text-sm tabular-nums sm:px-4 lg:table-cell">
@@ -457,7 +457,6 @@ export function BridgeDashboard() {
 
     fetchBridges();
 
-    // Real-time subscription for live updates
     const channel = supabase
       .channel("bridges-realtime")
       .on(
@@ -499,7 +498,7 @@ export function BridgeDashboard() {
                 BridgePulse
               </h2>
               <p className="text-sm text-muted-foreground sm:text-base">
-                Structural health monitoring dashboard — live crowd-sourced vibration data
+                Structural health monitoring dashboard â€” live crowd-sourced vibration data
               </p>
             </div>
           </div>

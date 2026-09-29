@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 import { View, Pressable, StyleSheet } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useScale } from '../theme/scale';
@@ -15,7 +15,6 @@ export default function BridgeStatusScreen() {
   const lastTrip = useStore((s) => s.lastTrip);
   const goMap = useStore((s) => s.goMap);
 
-  // Use real trip data if available
   const hasRealData = lastTrip && lastTrip.peakHz;
   const displayFreq = hasRealData ? lastTrip.peakHz.toFixed(1) : '-';
   const displayQuality = hasRealData ? `${lastTrip.quality}%` : '-';

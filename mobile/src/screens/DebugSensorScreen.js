@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef, useCallback } from 'react';
+﻿import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { View, StyleSheet } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Accelerometer } from 'expo-sensors';
@@ -15,7 +15,6 @@ const BUFFER_SIZE = 250;     // ~5 seconds at 50 Hz
 const NOISE_FLOOR = 0.008;   // dead zone: ignore below this (g)
 const SMOOTH_ALPHA = 0.3;    // low-pass filter: 0 = max smooth, 1 = raw
 
-// Fixed-width formatting: always 6 chars like "+0.108" or "-0.556"
 function formatG(val) {
   const sign = val < 0 ? '' : ' ';
   return `${sign}${val.toFixed(3)} g`;
@@ -42,29 +41,24 @@ export default function DebugSensorScreen() {
     Accelerometer.setUpdateInterval(UPDATE_MS);
 
     subscriptionRef.current = Accelerometer.addListener((data) => {
-      // Smooth the displayed X/Y/Z values (low-pass filter)
       smoothedAccel.current = {
         x: smoothedAccel.current.x + SMOOTH_ALPHA * (data.x - smoothedAccel.current.x),
         y: smoothedAccel.current.y + SMOOTH_ALPHA * (data.y - smoothedAccel.current.y),
         z: smoothedAccel.current.z + SMOOTH_ALPHA * (data.z - smoothedAccel.current.z),
       };
 
-      // Track timestamps for sample rate
       const now = Date.now();
       timestamps.current.push(now);
       const cutoff = now - 2000;
       timestamps.current = timestamps.current.filter((t) => t > cutoff);
 
-      // Vertical acceleration = magnitude - 1g
       const mag = Math.sqrt(data.x * data.x + data.y * data.y + data.z * data.z);
       let vertical = mag - 1.0;
 
-      // Dead zone: squash noise floor to zero
       if (Math.abs(vertical) < NOISE_FLOOR) {
         vertical = 0;
       }
 
-      // Low-pass filter for waveform
       smoothedVal.current = smoothedVal.current + SMOOTH_ALPHA * (vertical - smoothedVal.current);
 
       bufferRef.current.push(smoothedVal.current);
@@ -73,12 +67,10 @@ export default function DebugSensorScreen() {
       }
     });
 
-    // Separate render timer at 10fps — prevents 60fps re-renders
     renderTimer.current = setInterval(() => {
       setDisplayAccel({ ...smoothedAccel.current });
       setSamples([...bufferRef.current]);
 
-      // Compute sample rate: events in the last 2 seconds
       const tsLen = timestamps.current.length;
       if (tsLen > 2) {
         const windowMs = timestamps.current[tsLen - 1] - timestamps.current[0];
@@ -115,7 +107,6 @@ export default function DebugSensorScreen() {
 
   const { width: w, height: h } = layout;
 
-  // Build waveform points — scale: ±0.15g fills the chart
   const scaleG = 0.15;
   const points = samples
     .map((v, i) => {
@@ -163,7 +154,7 @@ export default function DebugSensorScreen() {
       <Card style={[styles.waveCard, { borderRadius: mu(8) }]}>
         <View style={styles.waveInner} onLayout={onLayout}>
           <Svg width={w} height={h}>
-            {/* Grid lines at ±0.05g and ±0.1g */}
+            {/* Grid lines at Â±0.05g and Â±0.1g */}
             <Line x1={0} y1={h * 0.167} x2={w} y2={h * 0.167} stroke={colors.border} strokeWidth={0.5} opacity={0.4} />
             <Line x1={0} y1={h * 0.333} x2={w} y2={h * 0.333} stroke={colors.border} strokeWidth={0.5} opacity={0.4} />
             <Line x1={0} y1={h / 2} x2={w} y2={h / 2} stroke={colors.border} strokeWidth={1} />

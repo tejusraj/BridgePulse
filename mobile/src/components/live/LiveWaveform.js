@@ -1,4 +1,4 @@
-import React, { useRef, useState, useCallback } from 'react';
+﻿import React, { useRef, useState, useCallback } from 'react';
 import { View, StyleSheet } from 'react-native';
 import Svg, { Line, Polyline } from 'react-native-svg';
 import { useScale } from '../../theme/scale';
@@ -16,12 +16,10 @@ export default function LiveWaveform({ samples }) {
 
   const { width: w, height: h } = layout;
 
-  // Build polyline points from last 180 samples
   const visibleSamples = samples.slice(-180);
   const points = visibleSamples
     .map((v, i) => {
       const x = (i / (visibleSamples.length - 1 || 1)) * w;
-      // Y: 50% height - v * 42.2% height, clamped 4.4% to 95.6%
       const rawY = 0.5 * h - v * 0.422 * h;
       const y = Math.max(0.044 * h, Math.min(0.956 * h, rawY));
       return `${x.toFixed(1)},${y.toFixed(1)}`;

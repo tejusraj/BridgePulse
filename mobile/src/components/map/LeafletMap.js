@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect, useCallback } from 'react';
+﻿import React, { useRef, useState, useEffect, useCallback } from 'react';
 import { View, ActivityIndicator, StyleSheet, Alert, Pressable } from 'react-native';
 import { WebView } from 'react-native-webview';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -149,26 +149,22 @@ function buildLeafletHTML() {
     var oldId = selectedBridgeId;
     selectedBridgeId = id;
 
-    // Reset old
     if (oldId && bridgeMarkers[oldId]) {
       bridgeMarkers[oldId].setIcon(createBridgeIcon(false));
       bridgeMarkers[oldId].setZIndexOffset(0);
     }
-    // Highlight new (no pan - user stays centered on their location)
     if (id && bridgeMarkers[id]) {
       bridgeMarkers[id].setIcon(createBridgeIcon(true));
       bridgeMarkers[id].setZIndexOffset(1000);
     }
   }
 
-  // Signal ready
   window.ReactNativeWebView.postMessage(JSON.stringify({ type: 'mapReady' }));
 </script>
 </body>
 </html>`;
 }
 
-// Permission priming screen - shown before system dialog
 function LocationPrimingScreen({ onContinue }) {
   const insets = useSafeAreaInsets();
 
@@ -259,7 +255,6 @@ export default function LeafletMap({ children }) {
   const setBridgesLoading = useStore((s) => s.setBridgesLoading);
   const setSelectedBridge = useStore((s) => s.setSelectedBridge);
 
-  // Fallback timeout
   useEffect(() => {
     const timer = setTimeout(() => {
       if (!mapReady) setLoadTimeout(true);
@@ -317,7 +312,6 @@ export default function LeafletMap({ children }) {
           webViewRef.current.injectJavaScript(js);
         }
 
-        // Update bridge distances on each GPS tick
         const currentBridges = useStore.getState().bridges;
         if (currentBridges.length > 0) {
           const updated = currentBridges.map(b => ({
@@ -327,7 +321,6 @@ export default function LeafletMap({ children }) {
           setBridges(updated);
         }
 
-        // Geofence: auto-start trip when near a bridge
         const storeState = useStore.getState();
         if (
           storeState.screen === 'map' &&
@@ -370,7 +363,6 @@ export default function LeafletMap({ children }) {
     );
   }, [mapReady]);
 
-  // Check if permission was already granted (skip priming)
   useEffect(() => {
     (async () => {
       const { status } = await Location.getForegroundPermissionsAsync();
@@ -418,7 +410,6 @@ export default function LeafletMap({ children }) {
     }
   };
 
-  // Show priming screen before system dialog
   if (showPriming) {
     return (
       <View style={styles.container}>
@@ -464,7 +455,7 @@ export default function LeafletMap({ children }) {
         <View style={styles.loadingOverlay}>
           <ActivityIndicator size="small" color={colors.accent} style={{ marginBottom: 12 }} />
           <Text variant="bodyS" style={{ color: colors.textSecondary }}>
-            Finding your location�
+            Finding your location…
           </Text>
         </View>
       )}

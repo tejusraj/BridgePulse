@@ -1,4 +1,4 @@
-import 'react-native-url-polyfill/auto';
+﻿import 'react-native-url-polyfill/auto';
 import { createClient } from '@supabase/supabase-js';
 
 const SUPABASE_URL = 'https://xbokcnyhjfvvidtjkcdr.supabase.co';

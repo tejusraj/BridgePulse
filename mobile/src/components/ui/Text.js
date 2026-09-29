@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 import { Text as RNText, StyleSheet } from 'react-native';
 import { useScale } from '../../theme/scale';
 import { FONT_INTER, FONT_INTER_MEDIUM, FONT_MONO } from '../../theme/fonts';

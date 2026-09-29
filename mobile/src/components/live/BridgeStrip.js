@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 import { View, StyleSheet } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useScale } from '../../theme/scale';
@@ -9,8 +9,6 @@ export default function BridgeStrip({ progress = 0 }) {
   const { mu } = useScale();
   const stripHeight = mu(110) + insets.top;
 
-  // Bridge position: left 33.33%, width 33.33%
-  // Marker x: left + width * progress
   const markerLeft = `${33.33 + 33.33 * progress}%`;
 
   return (

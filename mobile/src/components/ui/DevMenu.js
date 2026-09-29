@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, useMemo } from 'react';
+﻿import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { View, ScrollView, Pressable, StyleSheet, Modal, Animated, PanResponder, Easing, useWindowDimensions } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Settings, ChevronRight, Crosshair } from 'lucide-react-native';
@@ -17,7 +17,6 @@ export default function DevMenu() {
   const translateY = useRef(new Animated.Value(windowH)).current;
   const fadeAnim = useRef(new Animated.Value(0)).current;
 
-  // Easter egg: 6-tap counter on version text
   const tapCount = useRef(0);
   const tapTimer = useRef(null);
 
@@ -25,21 +24,17 @@ export default function DevMenu() {
   const autoStartRadiusM = useStore((s) => s.autoStartRadiusM);
   const setAutoStartRadiusM = useStore((s) => s.setAutoStartRadiusM);
 
-  // Drag-to-dismiss pan responder for the settings sheet
   const panResponder = useMemo(() => PanResponder.create({
     onMoveShouldSetPanResponder: (_, gs) => gs.dy > 8,
     onMoveShouldSetPanResponderCapture: (_, gs) => gs.dy > 8,
     onPanResponderMove: (_, gs) => {
-      // Only allow dragging down (positive dy)
       if (gs.dy > 0) {
         translateY.setValue(gs.dy);
-        // Fade overlay as sheet drags down
         const progress = Math.max(0, 1 - gs.dy / (windowH * 0.4));
         fadeAnim.setValue(progress);
       }
     },
     onPanResponderRelease: (_, gs) => {
-      // Dismiss if dragged far enough or fast enough
       if (gs.dy > 100 || gs.vy > 0.5) {
         Animated.parallel([
           Animated.timing(translateY, {
@@ -55,7 +50,6 @@ export default function DevMenu() {
           })
         ]).start(() => setVisible(false));
       } else {
-        // Snap back
         Animated.parallel([
           Animated.spring(translateY, {
             toValue: 0,

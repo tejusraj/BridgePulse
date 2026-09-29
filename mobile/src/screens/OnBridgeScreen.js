@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react';
+﻿import React, { useEffect, useState, useCallback } from 'react';
 import { View, ScrollView, StyleSheet } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useKeepAwake } from 'expo-keep-awake';
@@ -29,17 +29,14 @@ export default function OnBridgeScreen() {
   const [samples, setSamples] = useState([]);
   const [specData, setSpecData] = useState(null);
 
-  // Start recording on mount
   useEffect(() => {
     start();
   }, [start]);
 
-  // Subscribe to waveform updates (avoids re-rendering entire screen)
   useEffect(() => {
     return subscribeWaveform((s) => setSamples(s));
   }, [subscribeWaveform]);
 
-  // Subscribe to spectrum updates
   useEffect(() => {
     return subscribeSpectrum((s) => setSpecData(s));
   }, [subscribeSpectrum]);
@@ -103,7 +100,7 @@ export default function OnBridgeScreen() {
 
         {/* Waveform */}
         <Text variant="caption" style={[styles.muted, { marginBottom: mu(4) }]}>
-          Vertical acceleration · live
+          Vertical acceleration Â· live
         </Text>
         <LiveWaveform samples={samples} />
 
