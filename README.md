@@ -2,7 +2,7 @@
 
 **Crowd-sourced structural health monitoring for bridges using smartphone vibration analysis.**
 
-BridgePulse transforms every vehicle crossing into a structural assessment by analyzing vibration data captured through smartphone accelerometers. Using signal processing techniques from peer-reviewed research (Matarazzo & Pakzad 2018, Yang et al. 2004), the system extracts bridge natural frequencies and detects potential structural degradation — without expensive dedicated sensors.
+BridgePulse transforms every vehicle crossing into a structural assessment by analyzing vibration data captured through smartphone accelerometers. Using signal processing techniques from peer-reviewed research (Matarazzo & Pakzad 2018, Yang et al. 2004), the system extracts bridge natural frequencies and detects potential structural degradation without expensive dedicated sensors.
 
 ---
 
